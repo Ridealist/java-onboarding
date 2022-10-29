@@ -80,6 +80,60 @@ Game 에서 예외사항이 아닌 것(정상 입력)에 대해서만 Calculator
 ![class diagram](./img/프리코스_1주차_기능1_draft2.drawio.png)
 
 
+## 문제 2
+
+### 기능 목록 v0.1
+
+- 문제 구조는 간단해 UML을 작성하는 건 쉬웠다.
+  - 중복 제거하는 메소드 정의
+  - 재귀적으로 호출해 중복이 없을 때까지 반복
+  - 중복 제거 전 후가 똑같으면 원래값 return
+
+![image](./img/프리코스_1주차-Problem2.drawio.png)
+
+중복을 삭제하는 부분의 메소드에 대한 알고리즘을 짜는 것이 쉽지 않다.
+어렵지 않은 문제 같은데, Java 구현이 잘 안된다...
+문제 5번까지 풀고 다시 돌아와서 도전했지만 또 막힘...
+우선 Python으로 구현해보았다.
+
+![image](./img/캡처_vscode.PNG)
+
+- deleteDuplicate 부분을 Java로 옮기는 것이 관건...
+- Java String끼리 더하기 방법 + String 인덱싱을 어떻게 처리하는지 찾아본 후 아래처럼 작성해보았다.
+
+
+### 기능 목록 v0.2
+
+- String 인덱싱 -> String.charAt()
+- String + char 덧셈 가능 -> new_str += str.charAt(i)
+
+그런데... 잘 구현된 것 같은데 오류가 난다...
+이러지마 제발...
+
+![image](./img/캡처_p2_v2.PNG)
+
+- 그러다 기본서에서 공부한 것을 깨달았다...
+- str == n_str 재귀 만료 부분이 잘못되었다는 사실...
+  - Java는 String이 참조 객체이기 때문에 참조 객체의 주소가 일치하는 여부를 알려주는 연산자가 "==" 였던 것
+  - str.equal(n_str)으로 해야 "값"이 같은지를 확인할 수 있다.
+- 또한, 재귀함수를 solution에서 돌리는 것보다 Decoder 클래스에서 돌리는게 더 낫다고 판단
+  - renDecoder 메소드 추가 및 deleteDuplicate 메소드 private 설정 변경
+- 그렇게 수정해서 완성된 구조
+
+![image](./img/프리코스_1주차-Problem2_v2.drawio.png)
+
+
+### 기능 목록 v0.3
+
+응 아직 끝 아니야... 이번엔 test에서 오류가 또 났다...
+테스트 로그를 살펴본 결과, testcase2에서 문제가 있었는데
+return 값을 프린트해보며 debugging 해본 결과...
+
+1. "" 빈 String이 들어왔을 때 charAt으로 인덱싱 처리를 하는데서 오류가 발생
+    - deleteDuplicate 메소드에 빈 String이 들어왔을 때 바로 return 시키는 로직 추가
+2. 중복되는 값이 2개 이상 있는지 확인하는 "while ( i + dup_cnt < l )" while 문에서 indexing 에러 발생
+    - "while ( i + dup_cnt < l - 1)" 중복을 세는 범위를 1만큼 줄여줘서 String의 index 밖으로 벗어나지 않게 조정
+
 ## 문제 3
 
 ### 기능 목록 v0.1
@@ -137,3 +191,33 @@ HashMap을 클래스 맴버 필드로 지정하고서 별도의 method 없이 ma
 - makeMap() 메소드 추가
 
 ![image](./img/프리코스_1주차-Problem4_v2.drawio.png)
+
+
+## 문제 5
+
+- 알고리즘
+그리디 알고리즘의 전형적인 예시로 비슷한 문제를 풀어본 적이 있다.
+큰 금액의 화폐로 최대한 채우고 나머지가 큰 금액 화폐보다 작아지면 다시 그 것보다 하나 작은 금액 화폐로 채우고를 반복하는 방식
+
+- Java 문법
+List 컬렉션 중 ArrayList를 자료구조로 활용해야겠다고 생각했다.
+
+### 기능 목록 v0.1
+
+- [50000, 10000, 5000, 1000, 500, 100, 50, 10, 1] 금액이 담긴 ArrayList를 하나 만든다 - money_array
+- [0, 0, 0, 0, 0, 0, 0, 0, 0] 모두 0이 담긴 ArrayList를 return 형식으로 지정한다. - answer_array
+- money에 대하여 money_array index에 해당하는 '값'으로 나눈 몫을 answer_array에 같은 index에 저장한다.
+- money를 나머지로 다시 할당한다.
+- 위 과정을 1의 자리까지 반복한다.
+
+![image](./img/프리코스_1주차-Problem5.drawio.png)
+
+### 기능 목록 v0.2
+
+- 구현을 하다보니 모든 필드와 메소드를 default로 설정하면 패키지 내에서 충돌이 발생할 수 있겠다는 생각이 들었다.
+- 충돌 가능성 이유
+  - money_array는 setMoneyArray 메서드가 실행되기 전에는 무의미한 빈 값이다.
+  - getAnswer을 하기 전에 makeAnswerArray를 선행해서 실행해야 한다.
+- 이를 위해 접근 제한자를 private으로 설정해 '캡슐화'하여 외부에서는 getAnswer 메서드만 활용할 수 있게 변경했다.
+
+![image](./img/프리코스_1주차-Problem5_v2.drawio.png)
