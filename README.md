@@ -86,23 +86,64 @@
 
 
 ## - 문제 6
-(클래스를 분리하지 않음)
+- (클래스를 분리하지 않음)
 - 필드
   - a. forms의 인덱스에 맞게 닉네임 중복 여부를 저장하는 List<Boolean>
 - 메소드
-  - b. [["제이", "이엠"], ["제이", "이슨"],..] List<List<String>>을 만드는 함수
+  - b. List<List<String>>을 만드는 함수 (ex.[["제이", "이엠"], ["제이", "이슨"],..])
     - forms에서 한 개의 form을 꺼내와 닉네임만 추출
-    - 두글자씩 묶여진 List<String>을 만듦
-      - "제이엠" -> ["제이", "이엠"]
+    - 두글자씩 묶여진 List<String>을 만듦 (ex."제이엠" -> ["제이", "이엠"])
     - forms와 동일한 인덱스에 위 List<String>를 삽입
   - a 필드를 만드는 함수
   - 닉네임 중복 여부를 확인하는 함수
     - b에서 만들어진 List<List<String>> 길이 만큼 looping 돌기
       - a 필드가 true인 인덱스는 건너뛰고 다음 인덱스로
     - 하나의 List<String>을 꺼내 옴
-    - List<String>을 looping 돌며 한 String(ex. "제이")씩 중복 확인
+    - List<String>을 looping 돌며 한 String(ex."제이")씩 중복 확인
       - 나머지 List<String>에 String이 들어 있으면 a 필드값 true 갱신
         - 현재 String 꺼내진 인덱스와 중복된 인덱스 모두 갱신
+
+- **리팩터링**
+  - 클래스 분리
+    - DupeChecker
+      - isdup_list 필드 제거(반환값으로 필드에 부적절) / forms 필드 추가
+      - ArrayList looping 시 향상된 for문 적용
+      - 반복문 변수명 명료화
+
+
+## - 문제 7
+- (클래스를 분리하지 않음)
+- 필드
+  - a. {사용자 아이디=추천 점수, ..} user_score 저장하는 Map<String, Integer>
+  - b. {사용자 아이디=[친구1, 친구2], ..} user_friends 저장하는 Map<String, List<String>>
+- 메소드
+  - a. 사용자 타임 라인 방문 횟수로 점수 계산하는 기능
+  - b. 사용자 별 전체 친구 목록을 구하는 기능 (ex. {"mrko":["donut", "shakevan"], ...})
+  - c. 전체 친구 목록을 통해 함께 아는 친구 점수 계산하는 기능
+  - d. 위에 기능들을 수행한 후 최종 친구 추천 목록을 구하는 기능
+    - 이미 친구인 사람을 친구 추천 목록에서 빼는 기능
+    - 추천 점수가 0인 경우 제외하는 기능
+    - 추천 점수 순으로 정렬하고, 다시 이름순으로 다중 정렬하는 기능
+    - 최대 5명까지만 추천인 나누는 기능
+
+- **리팩터링**
+  - 클래스 분리 : Recommendation 클래스 생성
+  - Map 인터페이스의 getOrDefault 메소드룰 활용
+    - a, b, c 기능 중 map에 키 존재 여부 판단 로직 단순화
+  - b 필드 삭제 (클래스 전체에서 활용되지 않는 필드는 메소드 내부화)
+    - makeFriendsMap 메소드 내부에서 친구목록 Map 생성
+    - setFriendScore 메소드에서 위 자료 구조 활용해 점수 갱신
+  - d 메소드를 작은 메서드들로 쪼개기
+    - 최종 추천 점수 계산하는 메서드
+      - 이때, 점수 계산된 내역 중 이미 친구인 사용자 제외
+    - 추천 점수가 0인 사용자는 제외하는 메서드
+    - key(이름순)으로 정렬 및 value(점수순)으로 다중 정렬하는 메서드
+      - java는 stable sort를 지원해 가능
+
+
+> 기존의 "구현할 기능 목록"을 적은 `CODINGLOG.md`는 개인 블로그로 이동
+> 
+> [RIDI's TIL](https://ridealist.github.io/woowacourse/coding-log/)
 
 ---
 
